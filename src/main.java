@@ -22,6 +22,8 @@ public class main {
         }
         String[] testValues = {"JhonTest","password123","2010-01-02","yishaia","zabary","haifa"};
         test.updateEntry(testEntry,testValues);
+        String[] fieldsTochangeTeat={"user_password","user_firstname"};
+        test.getSpecificData(testEntry,"JhonTest",fieldsTochangeTeat);
         test.deleteAllFromTable("Users");
 //        for (String s :
 //                test.getEntryById("Users","1",testEntry)) {

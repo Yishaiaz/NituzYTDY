@@ -5,6 +5,7 @@ import EntriesObject.IEntry;
 
 import java.io.InputStream;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Properties;
 
@@ -102,7 +103,7 @@ public class SqliteDbConnection implements IdbConnection {
         this.connectToDb();
 
         String generatedId="";
-        // consider adding condition [if table exists, if not create]?
+
         String fieldNamesForSql=createSqlStringColumns(entry);
 
         String fieldValuesForSql=createSqlStringValues(entry) ;
@@ -125,22 +126,22 @@ public class SqliteDbConnection implements IdbConnection {
     public String[] getEntryById(String entryId, IEntry entry) {
         this.connectToDb();
         entryId="'"+entryId+"'";
-//enter table name to entry
+
         String[] ans=null;
 
         if (conn == null) {
             System.out.println("you have to connect to the DB first, use [dbInstance].connectToDb() function");
         }
         else{
-            ans=new String[entry.getColumnsTitles().length+1];
+            ans=new String[entry.getColumnsTitles().length];
             String sql = "SELECT * FROM "+entry.getTableName()+" WHERE "+entry.getIdentifiers()+"="+entryId+";";
             String[] columnsNames= entry.getColumnsTitles();
             try (Connection tempConn = this.conn;
                  Statement stmt  = tempConn.createStatement();
                  ResultSet rs    = stmt.executeQuery(sql)){
-                ans[0]=rs.getString(entry.getIdentifiers());
-                for (int i = 1; i < columnsNames.length+1; i++) {
-                    ans[i]=rs.getString(columnsNames[i-1]);
+//                ans[0]=rs.getString(entry.getIdentifiers());
+                for (int i = 0; i < columnsNames.length; i++) {
+                    ans[i]=rs.getString(columnsNames[i]);
                 }
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
@@ -239,6 +240,35 @@ public class SqliteDbConnection implements IdbConnection {
         }
 
         return ans;
+    }
+
+    @Override
+    public ArrayList<String> getSpecificData(IEntry entry, String entryId, String[] namesOfSpecificField) {
+        ArrayList<String> ans=new ArrayList<>();
+        this.connectToDb();
+        entryId="'"+entryId+"'";
+
+//        String[] allEntryData=getEntryById(entryId,entry);
+        if (conn == null) {
+            System.out.println("you have to connect to the DB first, use [dbInstance].connectToDb() function");
+        }
+        else{
+            String sql = "SELECT * FROM "+entry.getTableName()+" WHERE "+entry.getIdentifiers()+"="+entryId+";";
+            String[] columnsNames= entry.getColumnsTitles();
+            try (Connection tempConn = this.conn;
+                 Statement stmt  = tempConn.createStatement();
+                 ResultSet rs    = stmt.executeQuery(sql)){
+                for (int i = 0; i < namesOfSpecificField.length; i++) {
+                    ans.add(rs.getString(namesOfSpecificField[i]));
+                }
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+            return ans;
+        }
+
+
+        return null;
     }
 
     @Override
