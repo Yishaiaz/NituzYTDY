@@ -95,8 +95,9 @@ public class SqliteDbConnection implements IdbConnection {
     }
 
     @Override
-    public void insert(String tableName, IEntry entry,int id) {
+    public String insert(String tableName, IEntry entry) {
         this.connectToDb();
+        String generatedId="";
         String fieldNamesForSql="" ;
         for (String s:entry.getColumnsTitles()
              ) {
@@ -109,15 +110,19 @@ public class SqliteDbConnection implements IdbConnection {
         }
         fieldNamesForSql = fieldNamesForSql.substring(0, fieldNamesForSql.length() - 1);
         fieldValuesForSql = fieldValuesForSql.substring(0, fieldValuesForSql.length() - 1);
-        String sql = "INSERT INTO "+tableName+"("/*+"id,"*/+fieldNamesForSql+") VALUES("+fieldValuesForSql+")";
+        String sql = "INSERT INTO "+tableName+"("+fieldNamesForSql+") VALUES("+fieldValuesForSql+")";
         this.connectToDb();
         try (Connection conn = this.conn;
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-//            pstmt.setInt(1, id);
             pstmt.executeUpdate();
+            generatedId += Integer.toString(pstmt.getGeneratedKeys().getInt(1));
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
+        return generatedId;
+
     }
 
     @Override
