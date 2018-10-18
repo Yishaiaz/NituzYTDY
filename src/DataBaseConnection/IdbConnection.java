@@ -8,21 +8,23 @@ public interface IdbConnection {
 
     void connectToDb();
 
-    void createNewTable(String tableName,String[] tableColumns);
+    void createNewTable(IEntry entry);
 
-    String[] getEntryById(String tableName,String entryId,IEntry entry);
+    String[] getEntryById(String entryId,IEntry entry);
 
-    public LinkedList<String[]> getAllFromTable(IEntry entry, String tableName);
+    LinkedList<String[]> getAllFromTable(IEntry entry);
 
-    String insert(String tableName, IEntry entry);//should db connection use be implemented inside an entry object?
+    void insert(IEntry entry);//should db connection use be implemented inside an entry object?
 
-    void updateEntry(IEntry entry,String tableName,String entryId, String[] newValues);
+    void updateEntry(IEntry entry, String[] newValues);
 
     void deleteAllFromTable(String tableName);
 
     void deleteDb(String dbName);
 
-    void deleteById(IEntry entry,String tableName,String entryId);
+    void deleteById(IEntry entry);
+
+//    String[] getSpecificData();
 
     void closeConnection();
 }
