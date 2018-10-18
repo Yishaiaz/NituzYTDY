@@ -1,9 +1,12 @@
 package EntriesObject;
 
+import DataBaseConnection.IdbConnection;
+
 import java.lang.reflect.Field;
 
 public abstract class AEntry implements IEntry {
     protected String[] entryColumnNames;
+    protected String generatedId="";
 
     public AEntry(String[] entryColumnNames) {
         this.entryColumnNames = entryColumnNames;
@@ -25,13 +28,8 @@ public abstract class AEntry implements IEntry {
     }
 
     @Override
-    public void insertToDb() {
-
-    }
-
-    @Override
-    public void deleteFromDb() {
-
+    public void insertToDb(IdbConnection idbConnection){
+        this.generatedId=idbConnection.insert("Users",this);
     }
 
     @Override

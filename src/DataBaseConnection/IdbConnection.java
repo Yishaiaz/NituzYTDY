@@ -14,7 +14,7 @@ public interface IdbConnection {
 
     public LinkedList<String[]> getAllFromTable(IEntry entry, String tableName);
 
-    void insert(String tableName, IEntry entry,int id);
+    String insert(String tableName, IEntry entry);//should db connection use be implemented inside an entry object?
 
     void updateEntry(IEntry entry,String tableName,String entryId, String[] newValues);
 
@@ -25,8 +25,4 @@ public interface IdbConnection {
     void deleteById(IEntry entry,String tableName,String entryId);
 
     void closeConnection();
-
-
-
-
 }

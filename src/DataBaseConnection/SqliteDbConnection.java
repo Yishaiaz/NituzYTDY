@@ -67,15 +67,17 @@ public class SqliteDbConnection implements IdbConnection {
     @Override
     public void createNewTable(String tableName,String[] tableColumns) {
         this.connectToDb();
+
         // SQLite connection string
-        String url = this.props.getProperty("dbUrl");
 
         String tableColumnsSql ="" ;
+
         //creating the sql string part with all the the column titles
         for (String str :
                 tableColumns) {
             tableColumnsSql += str + " text" + " NOT NULL,\n";
         }
+
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS "+tableName+" ("
                 + "id integer,\n"
@@ -95,35 +97,36 @@ public class SqliteDbConnection implements IdbConnection {
     }
 
     @Override
-    public void insert(String tableName, IEntry entry,int id) {
+    public String insert(String tableName, IEntry entry) {
         this.connectToDb();
-        String fieldNamesForSql="" ;
-        for (String s:entry.getColumnsTitles()
-             ) {
-            fieldNamesForSql+=s+",";
-        }
-        String fieldValuesForSql="" ;
-        for (String s:entry.getAllData()
-        ) {
-            fieldValuesForSql+="'"+s+"',";
-        }
-        fieldNamesForSql = fieldNamesForSql.substring(0, fieldNamesForSql.length() - 1);
-        fieldValuesForSql = fieldValuesForSql.substring(0, fieldValuesForSql.length() - 1);
-        String sql = "INSERT INTO "+tableName+"("/*+"id,"*/+fieldNamesForSql+") VALUES("+fieldValuesForSql+")";
-        this.connectToDb();
+
+        String generatedId="";
+
+        String fieldNamesForSql=createSqlStringColumns(entry);
+
+        String fieldValuesForSql=createSqlStringValues(entry) ;
+
+        String sql = "INSERT INTO "+tableName+"("+fieldNamesForSql+") VALUES("+fieldValuesForSql+")";
+
         try (Connection conn = this.conn;
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-//            pstmt.setInt(1, id);
             pstmt.executeUpdate();
+            generatedId += Integer.toString(pstmt.getGeneratedKeys().getInt(1));
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
+        return generatedId;
+
     }
 
     @Override
     public String[] getEntryById(String tableName,String entryId,IEntry entry) {
         this.connectToDb();
+
         String[] ans=null;
+
         if (conn == null) {
             System.out.println("you have to connect to the DB first, use [dbInstance].connectToDb() function");
         }
@@ -149,6 +152,7 @@ public class SqliteDbConnection implements IdbConnection {
     @Override
     public void deleteAllFromTable(String tableName) {
         this.connectToDb();
+
         String sql = "DELETE FROM "+tableName;
 
         try (Connection conn = this.conn;
@@ -170,14 +174,11 @@ public class SqliteDbConnection implements IdbConnection {
     @Override
     public void updateEntry(IEntry entry,String tableName,String entryId, String[] newValues) {
         this.connectToDb();
-        String fieldNamesForSql="";
+
+        String fieldNamesForSql=createSqlStringColumns(entry);
+
         int i=0;
-        for (String s:entry.getColumnsTitles()
-        ) {
-            fieldNamesForSql+=s+"='"+newValues[i]+"',";
-            i++;
-        }
-        fieldNamesForSql=fieldNamesForSql.substring(0,fieldNamesForSql.length()-1);
+
         String sql = "UPDATE "+tableName+" SET "+fieldNamesForSql
                 + " WHERE "+entry.getIdentifiers()+"="+entryId;
 
@@ -193,6 +194,7 @@ public class SqliteDbConnection implements IdbConnection {
     @Override
     public void deleteById(IEntry entry,String tableName,String entryId){
         this.connectToDb();
+
         String sql = "DELETE FROM "+tableName+" WHERE "+entry.getIdentifiers()+" = " +entryId;
 
         try (Connection conn = this.conn;
@@ -208,7 +210,9 @@ public class SqliteDbConnection implements IdbConnection {
     @Override
     public LinkedList<String[]> getAllFromTable(IEntry entry, String tableName) {
         this.connectToDb();
+
         LinkedList<String[]> ans=new LinkedList<String[]>();
+
         String[] tempStringArray;
 
         String sql = "SELECT * FROM "+tableName;
@@ -230,10 +234,9 @@ public class SqliteDbConnection implements IdbConnection {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+
         return ans;
     }
-
-
 
     @Override
     public void closeConnection() {
@@ -245,6 +248,24 @@ public class SqliteDbConnection implements IdbConnection {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+
+    private String createSqlStringColumns(IEntry entry){
+        String ans="" ;
+        for (String s:entry.getColumnsTitles()
+        ) {
+            ans+=s+",";
+        }
+        return ans.substring(0,ans.length()-1);
+    }
+    private String createSqlStringValues(IEntry entry){
+        String ans="" ;
+        for (String s:entry.getAllData()
+        ) {
+            ans+="'"+s+"',";
+        }
+        return ans.substring(0,ans.length()-1);
     }
 
 }

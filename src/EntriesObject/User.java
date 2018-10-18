@@ -1,5 +1,7 @@
 package EntriesObject;
 
+import DataBaseConnection.IdbConnection;
+
 import java.util.Date;
 
 public class User extends AEntry{
@@ -61,15 +63,12 @@ public class User extends AEntry{
         return "id";
     }
 
-    @Override
-    public void insertToDb() {
-
-    }
 
     @Override
-    public void deleteFromDb() {
-
+    public void deleteFromDb(IdbConnection idbConnection) {
+        idbConnection.deleteById(this,"Users",this.generatedId);
     }
+
 
     @Override
     public String toString() {
