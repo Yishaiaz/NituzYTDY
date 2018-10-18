@@ -2,6 +2,7 @@ package DataBaseConnection;
 
 import EntriesObject.IEntry;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public interface IdbConnection {
@@ -24,7 +25,7 @@ public interface IdbConnection {
 
     void deleteById(IEntry entry);
 
-//    String[] getSpecificData();
+   ArrayList<String> getSpecificData(IEntry entry, String entryId, String[] namesOfSpecificField);
 
     void closeConnection();
 }
