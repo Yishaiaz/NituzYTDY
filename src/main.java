@@ -12,16 +12,16 @@ public class main {
 
         AEntry testEntry= new User("JhonTest","testPass", Date.valueOf("2010-01-01"),"testFN","testLN","testCity");
 
-        test.createNewTable("Users", testEntry.getColumnsTitles());
+        test.createNewTable( testEntry);
 
         testEntry.insertToDb(test);
         testEntry.deleteFromDb(test);
         for (String s :
-                test.getEntryById("Users","1",testEntry)) {
+                test.getEntryById("JhonTest",testEntry)) {
             System.out.println(s+",");
         }
         String[] testValues = {"userNameZ","password123","2010-01-02","yishaia","zabary","haifa"};
-        test.updateEntry(testEntry,"Users","1",testValues);
+        test.updateEntry(testEntry,testValues);
         test.deleteAllFromTable("Users");
 //        for (String s :
 //                test.getEntryById("Users","1",testEntry)) {

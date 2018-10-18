@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 
 public abstract class AEntry implements IEntry {
     protected String[] entryColumnNames;
-    protected String generatedId="";
 
     public AEntry(String[] entryColumnNames) {
         this.entryColumnNames = entryColumnNames;
@@ -24,12 +23,12 @@ public abstract class AEntry implements IEntry {
 
     @Override
     public String[] getColumnsTitles() {
-        return new String[2];
+        return entryColumnNames;
     }
 
     @Override
     public void insertToDb(IdbConnection idbConnection){
-        this.generatedId=idbConnection.insert("Users",this);
+        idbConnection.insert(this);
     }
 
     @Override

@@ -15,6 +15,8 @@ public class SqliteDbConnection implements IdbConnection {
     private Connection conn;
 
     /**
+     * //table name from entry
+     * //no id - use username
      * creates a db using name from config.properties file
      */
     public SqliteDbConnection(boolean create) {
@@ -65,7 +67,7 @@ public class SqliteDbConnection implements IdbConnection {
     }
 
     @Override
-    public void createNewTable(String tableName,String[] tableColumns) {
+    public void createNewTable(IEntry entry) {
         this.connectToDb();
 
         // SQLite connection string
@@ -74,15 +76,14 @@ public class SqliteDbConnection implements IdbConnection {
 
         //creating the sql string part with all the the column titles
         for (String str :
-                tableColumns) {
+                entry.getColumnsTitles()) {
             tableColumnsSql += str + " text" + " NOT NULL,\n";
         }
 
         // SQL statement for creating a new table
-        String sql = "CREATE TABLE IF NOT EXISTS "+tableName+" ("
-                + "id integer,\n"
+        String sql = "CREATE TABLE IF NOT EXISTS "+entry.getTableName()+" ("
                 +tableColumnsSql
-                + "PRIMARY KEY (id));";
+                + "PRIMARY KEY ("+entry.getIdentifiers()+"));";
 
         try (Connection tempConn=this.conn;
              Statement stmt = tempConn.createStatement()) {
@@ -97,16 +98,16 @@ public class SqliteDbConnection implements IdbConnection {
     }
 
     @Override
-    public String insert(String tableName, IEntry entry) {
+    public void insert(IEntry entry) {
         this.connectToDb();
 
         String generatedId="";
-
+        // consider adding condition [if table exists, if not create]?
         String fieldNamesForSql=createSqlStringColumns(entry);
 
         String fieldValuesForSql=createSqlStringValues(entry) ;
 
-        String sql = "INSERT INTO "+tableName+"("+fieldNamesForSql+") VALUES("+fieldValuesForSql+")";
+        String sql = "INSERT INTO "+entry.getTableName()+"("+fieldNamesForSql+") VALUES("+fieldValuesForSql+")";
 
         try (Connection conn = this.conn;
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -117,14 +118,13 @@ public class SqliteDbConnection implements IdbConnection {
             System.out.println(e.getMessage());
         }
 
-        return generatedId;
 
     }
 
     @Override
-    public String[] getEntryById(String tableName,String entryId,IEntry entry) {
+    public String[] getEntryById(String entryId, IEntry entry) {
         this.connectToDb();
-
+//enter table name to entry
         String[] ans=null;
 
         if (conn == null) {
@@ -132,7 +132,7 @@ public class SqliteDbConnection implements IdbConnection {
         }
         else{
             ans=new String[entry.getColumnsTitles().length+1];
-            String sql = "SELECT * FROM "+tableName+" WHERE "+entry.getIdentifiers()+"="+entryId;
+            String sql = "SELECT * FROM "+entry.getTableName()+" WHERE "+entry.getIdentifiers()+"="+entryId;
             String[] columnsNames= entry.getColumnsTitles();
             try (Connection tempConn = this.conn;
                  Statement stmt  = tempConn.createStatement();
@@ -146,8 +146,9 @@ public class SqliteDbConnection implements IdbConnection {
             }
             return ans;
         }
-        return ans;
+        return null;
     }
+
 
     @Override
     public void deleteAllFromTable(String tableName) {
@@ -172,15 +173,15 @@ public class SqliteDbConnection implements IdbConnection {
     }
 
     @Override
-    public void updateEntry(IEntry entry,String tableName,String entryId, String[] newValues) {
+    public void updateEntry(IEntry entry, String[] newValues) {
         this.connectToDb();
 
         String fieldNamesForSql=createSqlStringColumns(entry);
-
+        //validate function and
         int i=0;
 
-        String sql = "UPDATE "+tableName+" SET "+fieldNamesForSql
-                + " WHERE "+entry.getIdentifiers()+"="+entryId;
+        String sql = "UPDATE "+entry.getTableName()+" SET "+fieldNamesForSql
+                + " WHERE "+entry.getIdentifiers()+"="+entry.getIdentifierValue();
 
         try (Connection tempConn = this.conn;
              PreparedStatement pstmt = tempConn.prepareStatement(sql)) {
@@ -192,10 +193,10 @@ public class SqliteDbConnection implements IdbConnection {
     }
 
     @Override
-    public void deleteById(IEntry entry,String tableName,String entryId){
+    public void deleteById(IEntry entry) {
         this.connectToDb();
 
-        String sql = "DELETE FROM "+tableName+" WHERE "+entry.getIdentifiers()+" = " +entryId;
+        String sql = "DELETE FROM "+entry.getTableName()+" WHERE "+entry.getIdentifiers()+" = " +entry.getIdentifierValue();
 
         try (Connection conn = this.conn;
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -207,15 +208,16 @@ public class SqliteDbConnection implements IdbConnection {
         }
     }
 
+
     @Override
-    public LinkedList<String[]> getAllFromTable(IEntry entry, String tableName) {
+    public LinkedList<String[]> getAllFromTable(IEntry entry) {
         this.connectToDb();
 
         LinkedList<String[]> ans=new LinkedList<String[]>();
 
         String[] tempStringArray;
 
-        String sql = "SELECT * FROM "+tableName;
+        String sql = "SELECT * FROM "+entry.getTableName();
 
         try (Connection tempConn = this.conn;
              Statement stmt  = tempConn.createStatement();
@@ -249,6 +251,8 @@ public class SqliteDbConnection implements IdbConnection {
             System.out.println(ex.getMessage());
         }
     }
+
+
 
 
     private String createSqlStringColumns(IEntry entry){

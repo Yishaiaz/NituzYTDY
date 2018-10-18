@@ -41,8 +41,18 @@ public class User extends AEntry{
     }
 
     @Override
+    public String getTableName() {
+        return "Users";
+    }
+
+    @Override
     public String[] getColumnsTitles() {
-        return this.entryColumnNames;
+        return super.getColumnsTitles();
+    }
+
+    @Override
+    public String getIdentifierValue() {
+        return user_name;
     }
 
     @Override
@@ -60,13 +70,13 @@ public class User extends AEntry{
 
     @Override
     public String getIdentifiers() {
-        return "id";
+        return "user_name";//change to user_name
     }
 
 
     @Override
     public void deleteFromDb(IdbConnection idbConnection) {
-        idbConnection.deleteById(this,"Users",this.generatedId);
+        idbConnection.deleteById(this);
     }
 
 
