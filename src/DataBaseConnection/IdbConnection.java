@@ -1,26 +1,28 @@
 package DataBaseConnection;
 
-import java.util.List;
+import EntriesObject.IEntry;
+
+import java.util.LinkedList;
 
 public interface IdbConnection {
 
     void connectToDb();
 
-    void createNewTable(String tableName);
+    void createNewTable(String tableName,String[] tableColumns);
 
-    String[] getEntryById(String tableName, String entryId);
+    String[] getEntryById(String tableName,String entryId,IEntry entry);
 
-    List getAllFromTable(String tableName);
+    public LinkedList<String[]> getAllFromTable(IEntry entry, String tableName);
 
-    void insert(String tableName,int id, String name, double capacity);
+    void insert(String tableName, IEntry entry,int id);
 
-    void updateEntry(int id, String first_name, double score);
+    void updateEntry(IEntry entry,String tableName,String entryId, String[] newValues);
 
     void deleteAllFromTable(String tableName);
 
     void deleteDb(String dbName);
 
-    void deleteById(int id, String tableName);
+    void deleteById(IEntry entry,String tableName,String entryId);
 
     void closeConnection();
 
