@@ -25,8 +25,4 @@ public interface IdbConnection {
     void deleteById(IEntry entry,String tableName,String entryId);
 
     void closeConnection();
-
-
-
-
 }
