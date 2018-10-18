@@ -15,12 +15,12 @@ public class main {
         test.createNewTable( testEntry);
 
         testEntry.insertToDb(test);
-        testEntry.deleteFromDb(test);
+//        testEntry.deleteFromDb(test);
         for (String s :
                 test.getEntryById("JhonTest",testEntry)) {
             System.out.println(s+",");
         }
-        String[] testValues = {"userNameZ","password123","2010-01-02","yishaia","zabary","haifa"};
+        String[] testValues = {"JhonTest","password123","2010-01-02","yishaia","zabary","haifa"};
         test.updateEntry(testEntry,testValues);
         test.deleteAllFromTable("Users");
 //        for (String s :
