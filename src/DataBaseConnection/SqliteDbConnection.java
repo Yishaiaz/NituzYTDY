@@ -124,6 +124,7 @@ public class SqliteDbConnection implements IdbConnection {
     @Override
     public String[] getEntryById(String entryId, IEntry entry) {
         this.connectToDb();
+        entryId="'"+entryId+"'";
 //enter table name to entry
         String[] ans=null;
 
@@ -132,12 +133,12 @@ public class SqliteDbConnection implements IdbConnection {
         }
         else{
             ans=new String[entry.getColumnsTitles().length+1];
-            String sql = "SELECT * FROM "+entry.getTableName()+" WHERE "+entry.getIdentifiers()+"="+entryId;
+            String sql = "SELECT * FROM "+entry.getTableName()+" WHERE "+entry.getIdentifiers()+"="+entryId+";";
             String[] columnsNames= entry.getColumnsTitles();
             try (Connection tempConn = this.conn;
                  Statement stmt  = tempConn.createStatement();
                  ResultSet rs    = stmt.executeQuery(sql)){
-                ans[0]=Integer.toString(rs.getInt("id"));
+                ans[0]=rs.getString(entry.getIdentifiers());
                 for (int i = 1; i < columnsNames.length+1; i++) {
                     ans[i]=rs.getString(columnsNames[i-1]);
                 }
@@ -176,12 +177,12 @@ public class SqliteDbConnection implements IdbConnection {
     public void updateEntry(IEntry entry, String[] newValues) {
         this.connectToDb();
 
-        String fieldNamesForSql=createSqlStringColumns(entry);
+        String fieldNamesForSql=createSqlStringForEditing(entry,newValues);
         //validate function and
         int i=0;
 
         String sql = "UPDATE "+entry.getTableName()+" SET "+fieldNamesForSql
-                + " WHERE "+entry.getIdentifiers()+"="+entry.getIdentifierValue();
+                + " WHERE "+entry.getIdentifiers()+"='"+entry.getIdentifierValue()+"';";
 
         try (Connection tempConn = this.conn;
              PreparedStatement pstmt = tempConn.prepareStatement(sql)) {
@@ -196,7 +197,7 @@ public class SqliteDbConnection implements IdbConnection {
     public void deleteById(IEntry entry) {
         this.connectToDb();
 
-        String sql = "DELETE FROM "+entry.getTableName()+" WHERE "+entry.getIdentifiers()+" = " +entry.getIdentifierValue();
+        String sql = "DELETE FROM "+entry.getTableName()+" WHERE "+entry.getIdentifiers()+" = " +"'"+entry.getIdentifierValue()+"';";
 
         try (Connection conn = this.conn;
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -268,6 +269,17 @@ public class SqliteDbConnection implements IdbConnection {
         for (String s:entry.getAllData()
         ) {
             ans+="'"+s+"',";
+        }
+        return ans.substring(0,ans.length()-1);
+    }
+    private String createSqlStringForEditing(IEntry entry,String[] newValues){
+        String ans="";
+        int i=0;
+        String[] columns = entry.getColumnsTitles();
+        for (String value :
+                newValues) {
+            ans+=columns[i]+"='"+value+"',";
+            i++;
         }
         return ans.substring(0,ans.length()-1);
     }
